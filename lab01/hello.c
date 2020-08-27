@@ -1,6 +1,9 @@
-#include "ic210.h"
+
 
 int main() {
-  fputs("Hello, world again!\n", stdout);
+  fputs("Three");
+  fputs("Two");
+  fputs("one");
+  fputs("Blastoff!");
   return 0;
 }
