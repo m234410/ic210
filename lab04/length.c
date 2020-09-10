@@ -7,8 +7,9 @@ int main(){
   cstring fileName;
   readstring(fileName, stdin);
   stream book = fopen(fileName, "r");
-  int wordcount = 0;
+  double wordcount = 0;
   int i = 0;
+  double wordlength = 0;
   
   while(i<3){
     cstring word;
@@ -16,12 +17,15 @@ int main(){
     if(stringeq(word, "***")){
       i++;
     }
-    if(i>1&&!stringeq(word, "***"))
+    if(i>1&&!stringeq(word, "***")){
       wordcount++;
+      wordlength += strlen(word);
+    }
   }
   
-  fputs("Word count: ", stdout);
-  writenum(wordcount, stdout);
+  double average = wordlength/wordcount;
+  fputs("Average word length: ", stdout);
+  writenum(average, stdout);
   fputs("\n", stdout);
 
   return 0;
