@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //Daniel Murray//
 
 
@@ -43,3 +44,8 @@ int main(){
 }
     
 
+=======
+/* Erase this comment and put your name here!
+ * p1.c: add and square numbers
+ */
+>>>>>>> 443539f74322ee9876edb6025703e96d6c4866ba

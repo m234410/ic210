@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //Daniel Murray//
 
 #include<string.h>
@@ -55,3 +56,8 @@ int main(){
   
   return 0;
 }
+=======
+/* Erase this comment and put your name here!
+ * p3.c: treasure map
+ */
+>>>>>>> 443539f74322ee9876edb6025703e96d6c4866ba
