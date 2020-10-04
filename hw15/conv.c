@@ -17,7 +17,12 @@ double lenUnitCF(cstring fromUnit, cstring toUnit);
 double toFeet(cstring fromUnit); // This just helps with lenUnitCF
 
 int main() {
-  //---- YOUR CODE GOES HERE ---------------//
+  double amount = 0;
+  cstring fromUnit;
+  cstring toUnit;
+  scanf("convert %lg %s to %s", &amount, fromUnit, toUnit);
+  double output = amount * (lenUnitCF(fromUnit,toUnit));
+  printf("%g %s\n", output, toUnit);
   return 0;
 }
 

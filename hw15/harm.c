@@ -11,6 +11,7 @@ int main() {
   /* DON'T CHANGE MAIN! Just write a good harm() function
    * prototype and definition above and below.
    */
+  double harm(int i);
   double target;
   printf("Enter target: ");
   fflush(stdout);
@@ -29,3 +30,12 @@ int main() {
 
   return 0;
 }
+
+double harm(int i){
+  double output = 0;
+  for(double h = 1; h<=i; ++h){
+    output += 1/h;
+  }
+  return output;
+}
+
