@@ -1,5 +1,5 @@
-// Replace this comment with your name
-// You should NOT edit the main() function below
+// Daniel Murray
+// // You should NOT edit the main() function below
 
 #include <stdio.h>
 
@@ -12,7 +12,7 @@ int main() {
    */
   printf("Enter amount: ");
   fflush(stdout);
-
+  void split(double amt, int* dollars, int* cents);
   double amt;
   if (scanf(" $%lg", &amt) != 1) {
     printf("ERROR: must enter something like $3.50\n");
@@ -27,4 +27,9 @@ int main() {
   printf("That's %i dollars and %i cents.\n", dollars, cents);
 
   return 0;
+}
+
+void split(double amt, int* dollars, int* cents){
+  *dollars = (int)amt;
+  *cents = ((int)(amt*100))%100;
 }
