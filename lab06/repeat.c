@@ -1,5 +1,4 @@
-/* repeat.c: printing out strings in a line.
- * YOUR NAME HERE
+/*Daniel Murray 234410
  */
 
 #include <stdio.h>
@@ -36,4 +35,12 @@ int main() {
   printf("\n");
 
   return 0;
+}
+
+void repeat(cstring s, int count){
+    printf("%s", s);
+    if(count>1){
+      --count;
+      repeat(s, count);
+    }
 }
