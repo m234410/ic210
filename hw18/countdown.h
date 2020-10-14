@@ -1,2 +1,8 @@
-// Erase this comment and put your name here!
-// countdown.h: function prototypes
+//Daniel Murray 234410//
+
+#ifndef COUNTDOWN_H
+#define COUNTDOWN_
+
+void countdown(int number);
+
+#endif //countdown.h//
