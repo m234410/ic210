@@ -8,6 +8,23 @@ typedef char cstring[128];
 void repeat(cstring s, int count);
 void cantor_row(int length, int level);
 
+int main(){
+  int width = 0;
+  printf("size: ");
+  scanf(" %d", &width);
+  printf("Width-%i Sierpinski carpet:\n", width);
+  // break//
+  for(int i = 0; (double)i < width; ++i){
+  carpet_row(width, i);
+  printf("\n");
+  }
+    
+
+  return 0;
+}
+
+  
+
 
 
 
@@ -15,29 +32,40 @@ void cantor_row(int length, int level);
 
 void repeat(cstring s, int count){
     if(count>0){
+
       printf("%s", s);
       --count;
       repeat(s, count);
     }
 }
 
-
 void carpet_row(int width, int row){
-  if(row==0){
-    cantor_row(width, 0);
-  else if(row<
-
-
-
-
-}
-void cantor_row(int length, int level){
-  if(length==1 || level==0){
-  repeat("X", length);
+  if(width==1 || row==0){
+    repeat("X", width);
   }
   else{
-  cantor_row(length/3, level-1);
-  repeat("_", length/3);
-  cantor_row(length/3, level-1);
- }
+    carpet_row(width/3, row-1);
+    if((width/3)<row<(2*width/3)){
+      repeat("_", width/3);
+    }
+    else{
+      carpet_row(width/3, row-1);
+void carpet_row(int width, int row){
+  if(width==1 || row==0){
+    repeat("X", width);
+  }
+  else{
+    carpet_row(width/3, row-1);
+    if((width/3)<row<(2*width/3)){
+      repeat("_", width/3);
+    }
+    else{
+      carpet_row(width/3, row-1);
+    }
+      carpet_row(width/3, row-1);
+  }
+}
+    }
+      carpet_row(width/3, row-1);
+  }
 }
