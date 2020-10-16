@@ -1,8 +1,4 @@
-/* Warmup program to practice int array functions.
- * YOUR NAME HERE
- * Note, you should not change main(), just write the definitions for
- * these functions.
- */
+/* Daniel Murray*/
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -35,3 +31,37 @@ int main() {
 
   return 0;
 }
+
+void read(int* array, int size){
+  for(int i = 0; i<size; ++i){
+    scanf(" %d", &array[i]);
+  }
+}
+
+void print(int* array, int size){
+  for(int i = 0; i < size; ++i){
+    printf(" %i", array[i]);
+  }
+  printf("\n");
+  for(int i = 0; i < (2*size + 1); ++i){
+    printf("-");
+  }
+  printf("\n");
+  for(int i = 0; i < size; ++i){
+    char letter = i + 'A';
+    printf(" %c", letter);
+  }
+  printf("\n");
+}
+
+bool is_ordered(int* array, int size){
+  int last = array[0];
+  for(int i = 1; i < size; ++i){
+    if(array[i] >= last)
+      last = array[i];
+    else
+      return 0;
+  }
+  return 1;
+}
+
