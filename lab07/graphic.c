@@ -75,11 +75,16 @@ void read(int* array, int size){
 }
 
 void print(int* array, int size){
-  for(int i = 0; i < size; ++i){
-    printf(" %i", array[i]);
+  for(int level = largest(array, size); level > 0; --level){
+    for(int i = 0; i < size; ++i){
+      if(array[i]>=level)
+        printf(" #"); 
+      else
+        printf("  ");
+    }
+    printf("\n");
   }
-
-  printf("\n");
+    
   for(int i = 0; i < (2*size + 1); ++i){
     printf("-");
   }
@@ -147,5 +152,4 @@ void cycleleft(int k, int* array, int size){
     array[i] = newarray[i];
   }
 }
-
 
