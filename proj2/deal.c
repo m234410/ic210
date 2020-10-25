@@ -32,8 +32,8 @@ int main(){
   }
 
 
-  int playersize = 10;
-  int dealersize = 10;
+  int playersize = 52;                      //initializes arrays for player and deck 
+  int dealersize = 52;
   int* player = calloc(playersize, sizeof(int));
   int* dealer = calloc(dealersize, sizeof(int));
 
