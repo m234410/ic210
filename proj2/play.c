@@ -13,6 +13,7 @@ void firstdeal(int* deck, int* player, int* dealer); // deals out initial hand t
 void print_card(int cardnum); //prints a single card based on its card number 
 void print_table(int* player, int* dealer); // prints a full table based on player and deck arrays
 void play_game(int* deck,int* player,int* dealer); // plays game, asking for hits from player then dealing out two to dealer
+void shuffle(int seed, int* deck);
 
 int main(){
   int deck[52];
@@ -24,16 +25,11 @@ int main(){
   printf("Seed: ");
   scanf(" %d", &seed);
   srand(seed);
-  if(seed!=0){
-    for(int i = 51; i>=0; --i){   //shuffles the deck if seed is not 0
-      int j = rand() % (i+1);
-      swap(i, j, deck);
-    }
-  }
+  shuffle(seed, deck);
+  
 
-
-  int playersize = 10;
-  int dealersize = 10;
+  int playersize = 52;
+  int dealersize = 52;
   int* player = calloc(playersize, sizeof(int));
   int* dealer = calloc(dealersize, sizeof(int));
 
@@ -167,6 +163,16 @@ void play_game(int* deck, int* player, int* dealer){
 
       sleep(2);
       printf("Dealer stands.\n");               //final stand at the bottom of final table
+    }
+  }
+}
+
+void shuffle(int seed, int* deck){
+
+  if(seed!=0){
+    for(int i = 51; i>=0; --i){   //shuffles the deck if seed is not 0
+      int j = rand() % (i+1);
+      swap(i, j, deck);
     }
   }
 }
