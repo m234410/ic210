@@ -11,9 +11,10 @@ char* get_suit(int cardnum); // returns suit character for a card number
 int get_value(int cardnum); // returns card value for a card number 
 void firstdeal(int* deck, int* player, int* dealer); // deals out initial hand to dealer and player arrays
 void print_card(int cardnum); //prints a single card based on its card number 
-void print_table(int* player, int* dealer); // prints a full table based on player and deck arrays
+void print_table(int* player, int* dealer, bool isplayerdone); // prints a full table based on player and deck arrays
 void play_game(int* deck,int* player,int* dealer); // plays game, asking for hits from player then dealing out two to dealer
 void shuffle(int seed, int* deck);
+int score(int* array);
 
 int main(){
   int deck[52];
@@ -21,21 +22,20 @@ int main(){
     deck[i] = ((i/13)+1)*100 + i%13 + 2; //creates deck, first term denotes suit, second one denotes value
   }
 
-  int seed = 0;
+  int seed = 0; //asks user for seed and shuffles deck
   printf("Seed: ");
   scanf(" %d", &seed);
   srand(seed);
   shuffle(seed, deck);
   
-
-  int playersize = 52;
+  int playersize = 52; //initialize player and dealer decks to an amount that won't be exceeded
   int dealersize = 52;
   int* player = calloc(playersize, sizeof(int));
   int* dealer = calloc(dealersize, sizeof(int));
 
   firstdeal(deck, player, dealer);
-  print_table(player, dealer); // deals initial hand to player and dealer 
-  play_game(deck, player, dealer);
+  print_table(player, dealer, false); // deals initial hand to player and dealer
+  play_game(deck, player, dealer); 
 
   free(player);
   free(dealer);
@@ -49,12 +49,12 @@ void swap(int value1, int value2, int* array){ //reads in an array and switches 
     array[value2] = holder;
 }
 
-int get_value(int cardnum){
+int get_value(int cardnum){ //reads in cardnumber and outputs value
   int cardvalue = cardnum % 100;
   return cardvalue;
 }
 
-char* get_suit(int cardnum){
+char* get_suit(int cardnum){ // reads in card number and outputs suit
   if(cardnum / 100 == 1){
     char CLUB[] = "\u2663"; // ♣
     return "\u2663";
@@ -78,7 +78,7 @@ char* get_suit(int cardnum){
  // value and suit. treats cards below 10, at 10, and above 10 with different
  // if/else statements. 
 void print_card(int cardnum){ 
-  if(cardnum==0){
+  if(cardnum==0){ // prints a space if the index is blank 
     printf("   ");
   }
   else if(get_value(cardnum)<10){
@@ -118,53 +118,98 @@ void firstdeal(int* deck, int* player, int* dealer){
   dealer[1] = deck[48];
 }
 
-void print_table(int* player, int* dealer){
+void print_table(int* player, int* dealer, bool isplayerdone){
   printf("\n");
   printf(" Player Dealer\n");
   int i = 0; //index
-  while(player[i]!=0 || dealer[i]!=0){ 
+  while(player[i]!=0 || dealer[i]!=0){  //will print as long as not BOTH player and dealer have blank values
     printf("| ");
     print_card(player[i]);
     printf("  | ");
-    print_card(dealer[i]);
+    if(isplayerdone==false && i == 1){ //if the player has not finished, do not reveal dealer 2nd card
+      printf(" **");
+    }
+    else{
+      print_card(dealer[i]);
+    }
     printf("  |\n");
     ++i;
   }
 }
 
 void play_game(int* deck, int* player, int* dealer){
-  int hit = 1;
-  int deck_index = 47;
-  int player_index = 2;
-  int dealer_index = 2;
+  bool isplayerdone = false; // boolean condition, if player is done, move goes to dealer.
+  bool hit = true; //boolean condition for game loop, ends when someone wins or a tie
+  int deck_index = 47; //keeps track of where to draw from the deck, 4 cards have already been dealt. 
+  int player_index = 2; //keeps track of where in the player array to issue cards
+  int dealer_index = 2; //does the same for dealer array
 
   while(hit==true){
     char move;
-    printf("Hit or stand? [h/s] ");
+    if(score(player)>21){ // if player busts, move goes to dealer
+      move = 's';
+      printf("Player busts!\n");
+    }
+    else if(isplayerdone){ // if the player is done with his hand, move will always go to dealer
+      move = 's';
+    }
+    else{
+    printf("Hit or stand? [h/s] "); // asks player what move to make 
     scanf(" %c", &move);
+    }
+    
     if(move == 'h'){
-      player[player_index] = deck[deck_index];
-      print_table(player, dealer);
+      player[player_index] = deck[deck_index]; // adds to player hand, adjusts indices for player and deck
+      print_table(player, dealer, isplayerdone);
       --deck_index;
       ++player_index;
     }
-    else if(move == 's'){
-      hit = 0;
-      print_table(player, dealer);   // reprints table 
-
-      for(int i = 0; i < 2; ++i){     //this will all happen twice
+    else if(move == 's'){  
+      isplayerdone = true;//player's turn has ended, dealer hand will be revealed via an if/else in print_table
+      print_table(player, dealer, isplayerdone);   // reprints table 
+      
+      if(score(dealer)>21){
+        hit = false;
+        sleep(2);
+        printf("Dealer busts!\n");
+      }
+      else if(score(dealer)>= 17 || score(player)>21){// if player busts or dealer hit 17, stand, else dealer hit. 
+        hit = false;            
+        sleep(2);
+        printf("Dealer stands.\n");               //final stand at the bottom of final table
+      }
+      else{
         sleep(2);
         printf("Dealer hits.\n");  // announces that dealer will hit below the table
-        dealer[dealer_index] = deck[deck_index]; //changes dealer array to show the hit
-        print_table(player, dealer);            // prints the new table with the hit
+        dealer[dealer_index] = deck[deck_index]; //changes dealer and player array to show the hit
         --deck_index; 
-        ++dealer_index;                         //changes the indices to keep up with the change
+        ++dealer_index;
       }
-
-      sleep(2);
-      printf("Dealer stands.\n");               //final stand at the bottom of final table
     }
   }
+  printf("\nFinal scores: Player %i, Dealer %i.\n", score(player), score(dealer)); //if higher score or dealer bust
+  if((score(player)>score(dealer)&&(score(player)<=21)) || score(dealer)>21){
+    printf("Player wins!\n");
+  }
+  else if(score(dealer)>score(player) || score(player)>21){ // if higher score or player bust, dealer win 
+    printf("Dealer wins!\n");
+  }
+  else{
+    printf("Push! Play again.\n");
+    //re loop
+    for(int i =0; i < 52; ++i){
+      deck[i] = ((i/13)+1)*100 + i%13 + 2; // resets the deck to starting order
+    }
+    shuffle(1, deck);// shuffles deck, does not actually input seed 1, just makes sure that seed != 0 so it shuffles
+    for(int i = 0; i < 52; ++i){
+      player[i] = 0;
+      dealer[i] = 0;
+    }
+    firstdeal(deck, player, dealer);
+    print_table(player, dealer, 0);
+    play_game(deck, player, dealer);
+  }
+
 }
 
 void shuffle(int seed, int* deck){
@@ -177,4 +222,35 @@ void shuffle(int seed, int* deck){
   }
 }
 
-//need to add an expanding function if game keeps going
+
+int score(int* array){ // reads in a hand and returns the score
+  int score = 0; 
+  int i = 0;
+  int ace = 0;
+  while(array[i]!=0){
+    if(array[i]%100 < 2){
+      return 66; //error
+    }
+    else if(array[i]%100 < 11){
+      score += array[i]%100;
+    }
+    else if(array[i]%100 < 14){
+      score += 10;
+    }
+    else if(array[i]%100 == 14){ //if a hand has aces, they can count as 11 or 1,  default 11 but will revert to 1's
+        score += 11;             // until hand is out of aces or under 21
+        ++ace;
+    }
+    
+
+    ++i;
+  }
+  if(score > 21 && ace){
+    for(int i  = ace; score > 21 && i > 0; --i){
+      score -= 10;
+    }
+  }
+
+  return score;
+}
+
