@@ -4,6 +4,8 @@
 #include<stdbool.h>
 #include<stdio.h>
 
+bool match(void* a, void* b);
+int search(char** names, int size, char* letter);
 
 int main(){
   printf("Enter 5 names: ");
@@ -11,22 +13,25 @@ int main(){
   for(int i = 0; i < 5; ++i){
     names[i] = calloc(128, sizeof(char));
     scanf(" %s", names[i]);
+
   }
 
   char letter;
-  printf("Enter letter: ");
+  printf("Letter: ");
   scanf(" %c", &letter);
-
-  // need to search for a space and a letter 
-
-
- search(names, 5, letter);
-
-  
+ 
+  int name_index = search(names, 5, &letter);
+  if(name_index < 5){
+    printf("%s\n", names[name_index]);
+  }
+  else{
+    printf("not found\n");
+  }
 
   return 0;
 }
 
+//helper functions
 int search(char** names, int size, char* letter){
   int i = 0;
   while(i < size && !(match(names[i], letter))){
@@ -36,11 +41,12 @@ int search(char** names, int size, char* letter){
 }
 
 bool match(void* a, void* b){
-  //does the first letter of this cstring have this letter 
-  if(a[0]==' '){
-    return(a[1]==b);
+  int i = 0;
+  char* name = a;
+  char* letter = b;
+
+  while(name[i]==' '){
+      ++i;
   }
-  else{
-    return(a[0]==b);
-  }
+  return(name[i]==*letter);
 }

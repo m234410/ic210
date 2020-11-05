@@ -12,7 +12,6 @@ int main() {
   cstring candidate2;
 
   get_names(candidate1, candidate2);
-
   int count1 = 0;
   int count2 = 0;
 
