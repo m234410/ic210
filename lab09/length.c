@@ -1,8 +1,12 @@
-/* first10.c: Print out the first 10 episodes in an rss file
- * Remember, type "make first10" to compile this program *fixed error*
+/* length.c: list time between first and last episode of podcast in days, hours,
+ * minutes, seconds 
+ * Daniel Murray 234410
  */
 
+#define _XOPEN_SOURCE
+#include<time.h>
 #include <stdio.h>
+#include<stdbool.h>
 #include "rss.h"
 
 int main() {
@@ -18,29 +22,22 @@ int main() {
     return 1;
   }
 
-  printf("First 10 episodes in the file are below.\n");
-
   // Declare strings to hold the info for each episode
   // Note, we expects titles and urls to (possibly) be very long,
   // but dates won't be as long.
-  char title[256];
-  char url[256];
   char date[64];
 
-  int episode_index = 1;
-  // loop through the first 10 episodes using next_episode()
-  while (episode_index <= 10 && next_episode(rss)) {
+  while (next_episode(rss)) {
     // call functions from rss.h to get episode information
-    episode_title(rss, title);
     episode_date(rss, date);
-    episode_url(rss, url);
+    printf("%s\n", date);
+    struct tm date_struct = {0};
+    strptime(date, "%a, %d %b %Y %H %M %S", &date_struct);
+    time_t absolute_time = mktime(&date_struct);
 
-    // display the information we just looked up
-    printf("\n%d. %s\n", episode_index, title);
-    printf("  date: %s\n", date);
-    printf("  url: %s\n", url);
-
-    ++episode_index;
+    //find a way to read in two or compare to last, use difftime to compare the
+    //times passede. 
+    break;
   }
 
   // It's always good to clean up after yourself.
