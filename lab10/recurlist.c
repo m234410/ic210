@@ -11,6 +11,10 @@ Node* add2front(char* s, Node* L){
 }
 
 void free_list(Node* L){
+  if(L==NULL){
+    return;
+  }
+
   if(L->next){
     free_list(L->next);
   }
@@ -18,6 +22,9 @@ void free_list(Node* L){
 }
 
 void print_fwd(Node* L){
+  if(L==NULL){
+    return;
+  }
   printf("%s\n", L->color);
   if(L->next){
     print_fwd(L->next);
@@ -25,6 +32,9 @@ void print_fwd(Node* L){
 }
 
 bool contains(char* s, Node* L){
+  if(L==NULL){
+    return false;
+  }
   bool have = false;
   if(L->next){
     have = contains(s, L->next);
@@ -44,7 +54,7 @@ char* get_ith(int i , Node* L){
   }
 }
 
-int num_chars(Node* L){ //seg fault when 0 test 
+int num_chars(Node* L){  
   int count = 0;
   if(L==NULL){
     return count;
@@ -54,4 +64,27 @@ int num_chars(Node* L){ //seg fault when 0 test
   }
   count += strlen(L->color);
   return count;
+}
+
+void print_rev(Node* L){
+  if(L == NULL){
+    return; 
+  }
+  else{
+    print_rev(L->next);
+    printf("%s\n", L->color);
+  }
+}
+
+Node* remove_ith(int i, Node* L){
+  if(L == NULL){
+    return NULL;
+  }
+  else if(i==0){
+    return L->next;
+  }
+  else{
+    L->next = remove_ith(i-1, L->next);
+    return L;
+  }
 }

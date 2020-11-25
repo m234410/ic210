@@ -50,4 +50,32 @@ int num_chars(Node* L){
   return count;
 }
 
+void print_rev(Node* L){
+  int i  = -1;
+  for(Node* cur = L; cur; cur = cur->next){
+    ++i;
+  }
+  while(i>=0){
+    Node* temp = L;
+    for(int j = i; j>0; --j){
+      temp = temp->next;
+    }
+    --i;
+    printf("%s\n", temp->color);
+  }
+}
+
+Node* remove_ith(int i, Node* L){
+  Node* temp = L;
+  if(i==0){
+    temp = temp->next;
+    return temp;
+  }
+  --i;
+  for(i; i > 0; --i){
+    temp = temp->next;
+  }
+  temp->next=temp->next->next;
+  return L;
+}
 

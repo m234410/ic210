@@ -22,5 +22,7 @@ void free_list(Node* L);
 bool contains(char* s, Node* L);
 char* get_ith(int i, Node* L);
 int num_chars(Node* L);
+void print_rev(Node* L); 
+Node* remove_ith(int i, Node* L);
 
 #endif //DRAW_H

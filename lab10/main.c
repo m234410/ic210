@@ -35,7 +35,6 @@ int main() {
   printf("\n");
   printf("the total number of characters is %d\n", num_chars(L));
 
-  /* uncomment once you get to these!
   printf("\n");
   printf("Contents in reverse order:\n");
   print_rev(L);
@@ -44,7 +43,6 @@ int main() {
   printf("Contents after removing index 3:\n");
   L = remove_ith(3, L);
   print_fwd(L);
-  */
 
   free_list(L);
 

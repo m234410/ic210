@@ -5,8 +5,9 @@ CFLAGS = -Wall -Wextra -Wno-unused -Wno-sign-compare -O2 -g $(shell pkg-config -
 LDLIBS = $(shell pkg-config --libs libxml-2.0 gtk+-3.0 cairo) -lm
 
 # These are variables to say what are the .h and the main-less .c files in this directory.
-HEADER_FILES = gps.h
+HEADER_FILES = gps.h 
 IMPLEMENTATION_FILES = gps.c
+
 
 track:
 
