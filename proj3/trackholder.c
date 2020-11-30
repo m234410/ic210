@@ -10,12 +10,10 @@
 #include"gps.h"
 
 typedef char cstring[128];
-typedef struct Node Node;
-typedef struct Node{
+typedef struct{
   time_t time;
   gpsco gpsrad;
-  Node* next;
-};
+} waypoint;
 
 typedef struct{
   int hours;
@@ -30,14 +28,15 @@ typedef struct{
 } landmark;
 
 void conv_seconds(int seconds, broketime* difference);
-Node* fill_waypoint(Node* wpnt, FILE* fin);
-void free_node(Node* wpnt); 
-void get_stats(Node* wpnt);
-void get_landmark_distance(Node* wpnt);
+void fill_waypoint(int waypoints,waypoint* arr_waypoints, FILE* fin);
+void get_stats(int waypoints, waypoint* arr_waypoints);
+void get_landmark_distance(int waypoints, waypoint* arr_waypoints);
 void fill_landmark(int landmarks, landmark* arr_landmarks, FILE* fin);
 void selection_sort_landmark(landmark* arr_landmarks, int landmarks);
 bool before(landmark a, landmark b);
-void get_fastest(Node* wpnt);
+void get_fastest(int waypoints, waypoint* arr_waypoints);
+
+
 
 int main(){
   cstring filename;
@@ -49,8 +48,8 @@ int main(){
   fscanf(fin, " %d", &waypoints); 
   printf("Opened %s with %i waypoints\n", filename, waypoints);
 
-  Node* wpnt = calloc(1, sizeof(Node));
-  wpnt = fill_waypoint(wpnt, fin); //reads in number of waypoints, creates link list of structs, fills them
+  waypoint* arr_waypoints = calloc(waypoints, sizeof(waypoint));
+  fill_waypoint(waypoints, arr_waypoints, fin); //reads in number of waypoints, creates array of structs, fills them
 
   while(true){  //reads in a command until quit is entered
     printf("command: ");
@@ -59,53 +58,37 @@ int main(){
       break;
     }
     else if(strcmp(command, "stats")==0){ //time, distance, speed, pace 
-      get_stats(wpnt); 
+      get_stats(waypoints, arr_waypoints); 
     }
     else if(strcmp(command, "landmarks")==0){ //closest distance to certain landmarks 
-      get_landmark_distance(wpnt);
+      get_landmark_distance(waypoints, arr_waypoints);
     }
-    else if(strcmp(command, "fastest")==0){ //fastest time a certain distance has been traveled 
-      get_fastest(wpnt);
-    } 
-    else if(strcmp(command, "linked")==0){
-      printf("yes\n");
+    else if(strcmp(command, "fastest")==0){
+      get_fastest(waypoints, arr_waypoints);
     }
   }
-
-  free_node(wpnt); //cleans up linked list and stream
+  
+  free(arr_waypoints); //cleans up array and stream
   fclose(fin);
   return 0;
 }
 
-Node* fill_waypoint(Node* wpnt, FILE* fin){
+void fill_waypoint(int waypoints, waypoint* arr_waypoints, FILE* fin){
+  for(int i = 0; i < waypoints; ++i){
     cstring date;
     cstring time;
     double latdeg;
     double londeg;
     struct tm time_holder = {0};
-  fscanf(fin, " %lg", &latdeg);
-  fscanf(fin, " %lg", &londeg);
-  fscanf(fin, " %s", date);
-  fscanf(fin, " %s", time);
-  if(feof(fin)){
-    return NULL;
+    fscanf(fin, " %lg", &latdeg);
+    fscanf(fin, " %lg", &londeg);
+    fscanf(fin, " %s", date);
+    fscanf(fin, " %s", time);
+    strptime(date, " %Y-%m-%d", &time_holder);
+    strptime(time, " %T", &time_holder);
+    arr_waypoints[i].time = mktime(&time_holder);
+    arr_waypoints[i].gpsrad = make_gps(latdeg, londeg);
   }
-  strptime(date, " %Y-%m-%d", &time_holder);
-  strptime(time, " %T", &time_holder);
-  wpnt->time = mktime(&time_holder);
-  wpnt->gpsrad = make_gps(latdeg, londeg);
-  wpnt->next = calloc(1, sizeof(Node));
-  wpnt->next = fill_waypoint(wpnt->next, fin);\
-  return wpnt;
-}
-
-void free_node(Node* wpnt){
-  if(wpnt==NULL){
-    return;
-  }
-  Node* temp = wpnt->next; 
-  free(wpnt);
-  free_node(temp);
 }
 
 void conv_seconds(int seconds, broketime* difference){ //converts int of seconds to fill broketime struct 
@@ -113,16 +96,13 @@ void conv_seconds(int seconds, broketime* difference){ //converts int of seconds
   difference->minutes = (seconds%3600)/60;
   difference->seconds = ((seconds%3600)%60);
 }
-
-void get_stats(Node* wpnt){
-  double seconds_diff;
+void get_stats(int waypoints, waypoint* arr_waypoints){
+  double seconds_diff = 0;
   double distance = 0;
-  time_t start_time = wpnt->time;
-  for(; wpnt->next; wpnt = wpnt->next){ 
-    distance += gps_dist(wpnt->next->gpsrad, wpnt->gpsrad);
+  for(int i =1; i < waypoints; ++i){
+    seconds_diff += difftime(arr_waypoints[i].time, arr_waypoints[i-1].time);
+    distance += gps_dist(arr_waypoints[i].gpsrad, arr_waypoints[i-1].gpsrad);
   }
-  seconds_diff = difftime(wpnt->time, start_time);
-
   broketime total_time = {0};
   conv_seconds(seconds_diff, &total_time); 
   printf("Total time: ");
@@ -141,7 +121,6 @@ void get_stats(Node* wpnt){
   pace_seconds = pace_seconds - pace_minutes*60;
   printf("Average pace: %i minutes, %g seconds per mile\n", pace_minutes, pace_seconds);
 }
-
 
 void fill_landmark(int landmarks, landmark* arr_landmarks, FILE* fin){
   for(int i = 0; i < landmarks; ++i){
@@ -174,7 +153,7 @@ bool before(landmark a, landmark b){
   return a.dist<b.dist;
 }
 
-void get_landmark_distance(Node* wpnt){
+void get_landmark_distance(int waypoints, waypoint* arr_waypoints){
   cstring filename; 
   int landmarks;
   scanf(" %s", filename);
@@ -184,10 +163,10 @@ void get_landmark_distance(Node* wpnt){
   fill_landmark(landmarks, arr_landmarks, fin);
 
   for(int lndmk = 0; lndmk < landmarks; ++lndmk){
-    double shortest_dist = gps_dist(wpnt->gpsrad, arr_landmarks[lndmk].gpsrad); //set 1st wpnt as shortest dist 
-    for(Node* cur = wpnt; cur; cur = cur->next){
-      if(gps_dist(cur->gpsrad, arr_landmarks[lndmk].gpsrad) < shortest_dist){
-        shortest_dist = gps_dist(cur->gpsrad, arr_landmarks[lndmk].gpsrad);
+    double shortest_dist = gps_dist(arr_waypoints[0].gpsrad, arr_landmarks[lndmk].gpsrad); 
+    for(int i = 1; i < waypoints; ++i){
+      if(gps_dist(arr_waypoints[i].gpsrad, arr_landmarks[lndmk].gpsrad) < shortest_dist){
+        shortest_dist = gps_dist(arr_waypoints[i].gpsrad, arr_landmarks[lndmk].gpsrad);
       }
     }
     arr_landmarks[lndmk].dist = shortest_dist;
@@ -201,22 +180,23 @@ void get_landmark_distance(Node* wpnt){
   fclose(fin);
 }
 
-void get_fastest(Node* wpnt){
+void get_fastest(int waypoints, waypoint* arr_waypoints){
   double goal_distance; 
   int fast_time;
   scanf(" %lg", &goal_distance);
   bool first = true;
   double distance;
   int time;
+  int wpnt;
   
-  for(Node* cur = wpnt; cur; cur = cur->next){ //runs through multiple possible starting points 
+  for(int i  = 1; i < waypoints; ++i){ //runs through multiple possible starting points 
     distance = 0;
     time = 0;
-    Node* subcur = cur;
-    while(distance < goal_distance && subcur->next){ //runs to distance goal
-      time += difftime(subcur->next->time, subcur->time);
-      distance += gps_dist(subcur->next->gpsrad, subcur->gpsrad);
-      subcur = subcur->next;
+    wpnt = i;
+    while(distance < goal_distance && wpnt < waypoints){ //runs to distance goal
+      time += difftime(arr_waypoints[wpnt].time, arr_waypoints[wpnt-1].time);
+      distance += gps_dist(arr_waypoints[wpnt].gpsrad, arr_waypoints[wpnt-1].gpsrad);
+      ++wpnt;
     }
     if(distance >= goal_distance){ //if it is actually full distance 
       if(first){
@@ -238,4 +218,3 @@ void get_fastest(Node* wpnt){
   }
   printf("%i seconds\n", fastest.seconds);
 }
-
